@@ -22,6 +22,7 @@ reg-suit prepare -p notify-github-with-api
   privateToken: string;
   ref?: string;
   shortDescription?: boolean;
+  markerComment?: string;
 }
 ```
 
@@ -36,3 +37,5 @@ reg-suit prepare -p notify-github-with-api
   | 🔴 Changed | ⚪️ New | 🔵 Passing |
   | ---------- | ------- | ---------- |
   | 3          | 4       | 120        |
+
+- `markerComment` - _Optional_ - A unique identifier used to find and update the PR comment. Default: `"reg-comment"`. Set different values when running multiple VRT workflows on the same PR to prevent them from overwriting each other's comments.

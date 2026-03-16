@@ -12,6 +12,7 @@ export interface GhApiPluginOption {
   githubUrl?: string;
   shortDescription?: boolean;
   ref?: string;
+  markerComment?: string;
 }
 
 export class GhApiNotifierPlugin implements NotifierPlugin<GhApiPluginOption> {
@@ -25,6 +26,7 @@ export class GhApiNotifierPlugin implements NotifierPlugin<GhApiPluginOption> {
   private _repo!: Repository;
   private _shortDescription!: boolean;
   private _ref?: string;
+  private _markerComment?: string;
 
   init(config: PluginCreateOptions<GhApiPluginOption>) {
     this._logger = config.logger;
@@ -35,6 +37,7 @@ export class GhApiNotifierPlugin implements NotifierPlugin<GhApiPluginOption> {
     this._repo = new Repository(path.join(fsUtil.prjRootDir(".git"), ".git"));
     this._shortDescription = config.options.shortDescription || false;
     this._ref = config.options.ref;
+    this._markerComment = config.options.markerComment;
   }
 
   async notify(params: NotifyParams) {
@@ -85,6 +88,7 @@ export class GhApiNotifierPlugin implements NotifierPlugin<GhApiPluginOption> {
       repository: this._repository,
       branchName,
       body: commentBody,
+      markerComment: this._markerComment,
     });
   }
 }

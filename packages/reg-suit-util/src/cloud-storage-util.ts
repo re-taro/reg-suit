@@ -3,7 +3,6 @@ import { PluginLogger, WorkingDirectoryInfo } from "reg-suit-interface";
 
 import { lookup } from "mime-types";
 import glob from "glob";
-import _ from "lodash";
 
 export type FileItem = {
   path: string;
@@ -28,6 +27,24 @@ export type ObjectListResult = {
 
 const CONCURRENCY_SIZE = 50;
 const DEFAULT_PATTERN = "**/*.{html,js,wasm,png,json,jpeg,jpg,tiff,bmp,gif}";
+
+const chunk = <T>(arr: readonly T[], size: number): T[][] => {
+  if (!Number.isInteger(size) || size <= 0) {
+    throw new Error("Size must be an integer greater than zero.");
+  }
+
+  const chunkLength = Math.ceil(arr.length / size);
+  const result: T[][] = Array(chunkLength);
+
+  for (let index = 0; index < chunkLength; index++) {
+    const start = index * size;
+    const end = start + size;
+
+    result[index] = arr.slice(start, end);
+  }
+
+  return result;
+};
 
 export abstract class AbstractPublisher {
   protected noEmit = false;
@@ -121,7 +138,7 @@ export abstract class AbstractPublisher {
           } as FileItem;
         });
       })
-      .then(items => _.chunk(items, CONCURRENCY_SIZE))
+      .then(items => chunk(items, CONCURRENCY_SIZE))
       .then(chunks => {
         return chunks.reduce((acc, chunk) => {
           return acc.then(list => {
@@ -157,7 +174,7 @@ export abstract class AbstractPublisher {
             this.logger.info(`There are ${list.length} files to publish`);
           }
         }
-        return _.chunk(list, CONCURRENCY_SIZE);
+        return chunk(list, CONCURRENCY_SIZE);
       })
       .then(chunks => {
         return chunks.reduce((acc, chunk) => {
